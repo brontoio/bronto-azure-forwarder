@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "<EVENT_HUB_CONNECTION_SETTINGS_KEY>": "<EVENT_HUB_CONNECTION_SETTINGS_VALUE>"
+#   "loggenerators_RootManageSharedAccessKey_EVENTHUB": "Endpoint=sb://<EVENTHUB_NAME>.servicebus.windows.net/;SharedAccessKeyName=<SOME_SHARED_ACCESS_KEY_NAME>;SharedAccessKey=<SOME_SHARED_ACCESS_KEY_VALUE>"
+  }
+}
