@@ -12,6 +12,7 @@ COLLECTION = os.environ.get('COLLECTION')
 DATASET = os.environ.get('DATASET')
 BRONTO_INGESTION_ENDPOINT = os.environ.get('BRONTO_INGESTION_ENDPOINT')
 BRONTO_API_KEY = os.environ.get('BRONTO_API_KEY')
+MAX_PAYLOAD_SIZE = os.environ.get('MAX_BRONTO_PAYLOAD_SIZE', 10_000_000)
 
 
 class BrontoClient:
@@ -44,8 +45,16 @@ class BrontoClient:
     def send_data(self, batch):
         data = '\n'.join([json.dumps(entry) for entry in batch])
         compressed_data = gzip.compress(data.encode())
-        logging.info('Batch compressed. compressed_batch_size=%s', len(compressed_data))
-        self._send_batch(compressed_data)
+        if len(compressed_data) < MAX_PAYLOAD_SIZE:
+            logging.info('Batch compressed. compressed_batch_size=%s', len(compressed_data))
+            self._send_batch(compressed_data)
+            return
+        logging.warning('Compressed batch is too large. Splitting in half. compressed_batch_size=%s, max_compressed_batch=%s', 
+                        len(compressed_data), MAX_PAYLOAD_SIZE)
+        batch_size = len(batch)
+        half = int(batch_size / 2)
+        self.send_data(data, batch[:half])
+        self.send_data(data, batch[half:])
 
 
 @app.function_name(name='brontologforwarder')
