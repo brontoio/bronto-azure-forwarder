@@ -20,7 +20,7 @@ jobs:
           review-message: "Auto approved"
 
       - name: Slack Notification
-        uses: logchatio/logchat-actions/slack-notify@main
+        uses: brontoio/logchat-actions/slack-notify@main
         with:
           channel: emergency-code-change
           title: "Peer Review required for ${{ github.event.issue.html_url }}"
