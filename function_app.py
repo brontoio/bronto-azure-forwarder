@@ -36,10 +36,10 @@ class Config:
 
         self.bronto_ingestion_endpoint = os.environ.get('BRONTO_INGESTION_ENDPOINT')
         if not self.bronto_ingestion_endpoint:
-            raise ConfigurationException('BRONTO_API_KEY is not a valid API Key')
+            raise ConfigurationException('BRONTO_INGESTION_ENDPOINT is not a valid Bronto endpoint')
         self.bronto_api_key = os.environ.get('BRONTO_API_KEY')
         if not self.bronto_api_key:
-            raise ConfigurationException('BRONTO_INGESTION_ENDPOINT is not a valid Bronto endpoint')
+            raise ConfigurationException('BRONTO_API_KEY is not a valid API Key')
         self.max_payload_size = os.environ.get('MAX_BRONTO_PAYLOAD_SIZE_BYTES', 5_000_000)
 
 
