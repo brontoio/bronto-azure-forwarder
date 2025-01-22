@@ -1,0 +1,43 @@
+name: Release forwarder artefact
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deployment:
+    environment: production
+
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
+      deployments: write
+
+    env:
+      VERSION: "1.1.${{ github.run_number }}-${{ github.run_attempt }}"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Version
+        id: set-version
+        run: |
+          echo "VERSION=${{ env.VERSION }}" >> $GITHUB_OUTPUT
+
+      - name: Build Artefact
+        run: ./build.sh ${{ env.VERSION }}
+
+      - name: Upload ${{ env.VERSION }} artifacts to S3
+        uses: brontoio/logchat-actions/s3-file-upload@main
+        with:
+          directory: "build"
+          target: ${{ env.VERSION }}
+          bucket: "releases.bronto.io/integrations/azure/forwarders/eventhub"
+
+      - name: Tag Version
+        if: success()
+        run: git tag ${{ env.VERSION }} && git push --tags
+        shell: bash
