@@ -62,7 +62,7 @@ class BrontoDestinationProvider:
         elif category.lower().startswith('nsp'):
             return 'NetworkSecurityPerimeter'
         elif category in ENTRA_ID_CATEGORIES:
-            return category
+            return 'EntraID'
         return self.collection
 
     def get_dataset(self, entry) -> Optional[str]:
@@ -79,6 +79,8 @@ class BrontoDestinationProvider:
             return 'AccessLogs'
         elif category.startswith('nsp'):
             return 'ProfilesLogs'
+        elif category in ENTRA_ID_CATEGORIES:
+            return category
         return self.dataset
 
 
