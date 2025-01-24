@@ -156,6 +156,7 @@ def forward(azeventhub: func.EventHubEvent):
     records = data.get('records')
     if records is None:
         logging.warning('No records in message')
+        return
     elif type(records) != list:
         logging.warning('list type expected for `records`. found_type=%s', type(records).__name__)
     bronto_client.send_data(records)
