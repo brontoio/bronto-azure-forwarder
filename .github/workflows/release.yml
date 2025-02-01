@@ -15,7 +15,6 @@ jobs:
 
     env:
       VERSION: "1.1.${{ github.run_number }}-${{ github.run_attempt }}"
-      BUILD_DIR: "build/1.1.${{ github.run_number }}-${{ github.run_attempt }}"
 
     steps:
       - name: Checkout
@@ -39,7 +38,7 @@ jobs:
           release_name: v${{ env.VERSION }}
 
       - name: Compute package hash
-        run: openssl dgst -sha256 -binary "${{ env.BUILD_DIR }}/brontoForwarder.zip" | openssl enc -base64 > "${{ env.BUILD_DIR }}/brontoForwarder.zip.b64sha256"
+        run: openssl dgst -sha256 -binary brontoForwarder.zip | openssl enc -base64 > brontoForwarder.zip.b64sha256
         shell: bash
 
       - name: Release Artefact
@@ -48,5 +47,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION }}
           files: |
-            "${{ env.BUILD_DIR }}/brontoForwarder.zip"
-            "${{ env.BUILD_DIR }}/brontoForwarder.zip.b64sha256"
+            brontoForwarder.zip
+            brontoForwarder.zip.b64sha256
