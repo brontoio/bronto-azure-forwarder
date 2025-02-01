@@ -6,8 +6,6 @@ on:
 
 jobs:
   deployment:
-    environment: production
-
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -17,27 +15,38 @@ jobs:
 
     env:
       VERSION: "1.1.${{ github.run_number }}-${{ github.run_attempt }}"
+      BUILD_DIR: "build/1.1.${{ github.run_number }}-${{ github.run_attempt }}"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Version
-        id: set-version
-        run: |
-          echo "VERSION=${{ env.VERSION }}" >> $GITHUB_OUTPUT
-
       - name: Build Artefact
         run: ./build.sh ${{ env.VERSION }}
-
-      - name: Upload ${{ env.VERSION }} artifacts to S3
-        uses: brontoio/logchat-actions/s3-file-upload@main
-        with:
-          directory: "build"
-          target: ${{ env.VERSION }}
-          bucket: "releases.bronto.io/integrations/azure/forwarders/eventhub"
 
       - name: Tag Version
         if: success()
         run: git tag ${{ env.VERSION }} && git push --tags
         shell: bash
+
+      - name: Create Release
+        if: success()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: v${{ env.VERSION }}
+
+      - name: Compute package hash
+        run: openssl dgst -sha256 -binary "${{ env.BUILD_DIR }}/brontoForwarder.zip" | openssl enc -base64 > "${{ env.BUILD_DIR }}/brontoForwarder.zip.b64sha256"
+        shell: bash
+
+      - name: Release Artefact
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.VERSION }}
+          files: |
+            "${{ env.BUILD_DIR }}/brontoForwarder.zip"
+            "${{ env.BUILD_DIR }}/brontoForwarder.zip.b64sha256"
