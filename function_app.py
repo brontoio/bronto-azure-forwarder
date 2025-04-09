@@ -153,6 +153,9 @@ def forward(azeventhub: func.EventHubEvent):
     except json.decoder.JSONDecodeError as _:
         logging.info('EVENT=%s', data)
         data = {'records' : [{'Category': 'unsupported', 'Message': data}]}
+    if type(data) == list:
+        logging.warning('Unexpected payload type: lists are not accepted. Maybe some unsupported input sources are generating log data.')
+        return
     default_collection = config.default_collection
     default_dataset = config.default_dataset
     destination_provider = BrontoDestinationProvider(default_collection, default_dataset)
